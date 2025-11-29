@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TerminalBoard — Boards</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/boards.css" />
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <header class="tb-header">
+    <div class="tb-logo">TERMINAL<span>BOARD</span></div>
+    <nav class="tb-nav">
+      <a href="../index.html">Sign in</a>
+      <a href="boards.html" class="tb-nav__active">Boards</a>
+      <a href="chat.html">Chatroom</a>
+    </nav>
+  </header>
+
+  <main class="tb-main">
+    <section class="board-layout">
+      <aside class="panel panel--left">
+        <div class="panel__header">
+          <span class="panel__title">BOARDS DIRECTORY</span>
+          <span class="panel__meta">Select a board to view threads.</span>
+        </div>
+
+        <ul id="boardList" class="board-list"></ul>
+      </aside>
+
+      <section class="panel panel--right">
+        <div class="panel__header">
+          <span class="panel__title" id="currentBoardTitle">/b/ — Random</span>
+          <span class="panel__meta" id="currentBoardDesc">
+            Anything goes. Expect chaos.
+          </span>
+        </div>
+
+        <div id="threadList" class="thread-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="tb-footer">
+    <span>TERMINALBOARD · BOARD/UI FRONTEND DEMO</span>
+  </footer>
+
+  <script src="js/boards.js"></script>
+  <script src="js/matrix.js"></script>
+</body>
+</html>
