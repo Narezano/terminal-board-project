@@ -59,7 +59,7 @@ async function login(event) {
 
     // Redirect to boards page from login (root index.html)
     setTimeout(() => {
-      window.location.href = "frontend/boards.html";
+      window.location.href = "frontend/chat.html";
     }, 800);
   } catch (err) {
     console.error("Login error:", err);
