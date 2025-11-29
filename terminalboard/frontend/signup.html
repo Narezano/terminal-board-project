@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TerminalBoard — Sign Up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <header class="tb-header">
+    <div class="tb-logo">TERMINAL<span>BOARD</span></div>
+    <nav class="tb-nav">
+      <a href="../index.html">Sign in</a>
+      <a href="boards.html">Boards</a>
+      <a href="chat.html">Chatroom</a>
+    </nav>
+  </header>
+
+  <main class="tb-main">
+    <section class="auth-card">
+      <div class="auth-card__titlebar">
+        <span class="dot dot--red"></span>
+        <span class="dot dot--yellow"></span>
+        <span class="dot dot--green"></span>
+        <span class="auth-card__title">/auth/register</span>
+      </div>
+
+      <div class="auth-card__body">
+        <h1 class="auth-heading">CREATE CREDENTIALS</h1>
+        <p class="auth-subtext">
+          Choose a handle, set a passphrase, and join the board.
+        </p>
+
+        <form id="signupForm" class="auth-form">
+          <label for="signupUsername">Handle</label>
+          <input
+            type="text"
+            id="signupUsername"
+            placeholder="anon42"
+            autocomplete="username"
+          />
+
+          <label for="signupEmail">Email (demo only)</label>
+          <input
+            type="email"
+            id="signupEmail"
+            placeholder="you@example.com"
+            autocomplete="email"
+          />
+
+          <label for="signupPassword">Passphrase</label>
+          <input
+            type="password"
+            id="signupPassword"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          />
+
+          <label for="signupConfirmPassword">Confirm passphrase</label>
+          <input
+            type="password"
+            id="signupConfirmPassword"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          />
+
+          <div class="auth-form__footer">
+            <label class="checkbox">
+              <input type="checkbox" id="signupTos" />
+              <span>I accept the pseudo-rules of TerminalBoard.</span>
+            </label>
+
+            <button type="submit" class="btn-primary">
+              <span>&gt; REGISTER</span>
+            </button>
+          </div>
+        </form>
+
+        <p id="signupMessage" class="message"></p>
+
+        <p class="auth-link">
+          Already jacked in?
+          <a href="../index.html">Sign in</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="tb-footer">
+    <span>v0.1 · FRONTEND DEMO ONLY</span>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/matrix.js"></script>
+</body>
+</html>
