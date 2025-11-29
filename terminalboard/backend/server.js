@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const http = require("http");
 const { Server } = require("socket.io");
 const connectDB = require("./config/db");
+const Message = require("./models/Message");
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const server = http.createServer(app);
 // Socket.io instance
 const io = new Server(server, {
   cors: {
-    origin: "*", // dev-friendly; later lock to your Vercel URL
+    origin: "*", // for dev; later lock this to your Vercel URL
     methods: ["GET", "POST"],
   },
 });
@@ -38,14 +39,47 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/chat", require("./routes/chatRoutes"));
 
-// --- Socket.io chat logic (one room: /lobby/) ---
-const Message = require("./models/Message");
+// ==============================
+// Socket.io chat logic (one room)
+// ==============================
+
+/**
+ * usersInRoom: Map<roomName, Map<socketId, username>>
+ * For now we only use room "lobby"
+ */
+const usersInRoom = new Map();
+
+function broadcastRoomUsers(room) {
+  const roomMap = usersInRoom.get(room);
+  const users = roomMap ? Array.from(roomMap.values()) : [];
+
+  io.to(room).emit("roomUsers", {
+    room,
+    users, // array of usernames
+  });
+}
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
   const room = "lobby";
+  const username =
+    (socket.handshake.query &&
+      typeof socket.handshake.query.username === "string" &&
+      socket.handshake.query.username.trim()) ||
+    "anon";
+
   socket.join(room);
+
+  // Add to presence map
+  if (!usersInRoom.has(room)) {
+    usersInRoom.set(room, new Map());
+  }
+  const roomMap = usersInRoom.get(room);
+  roomMap.set(socket.id, username);
+
+  // Notify everyone in the room about current users
+  broadcastRoomUsers(room);
 
   // Listen for chat messages from clients
   socket.on("chatMessage", async (payload) => {
@@ -76,6 +110,16 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
+
+    const roomMap = usersInRoom.get(room);
+    if (roomMap) {
+      roomMap.delete(socket.id);
+      if (roomMap.size === 0) {
+        usersInRoom.delete(room);
+      } else {
+        broadcastRoomUsers(room);
+      }
+    }
   });
 });
 
