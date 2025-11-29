@@ -1,138 +1,154 @@
+// frontend/js/chat.js
+
+// Small helper
 const $ = (sel) => document.querySelector(sel);
 
-const CHAT_USERS = [
-  { handle: "anon42", status: "online", meta: "sysop" },
-  { handle: "dialup", status: "online", meta: "nostalgia" },
-  { handle: "ghost", status: "away", meta: "brb" },
-  { handle: "rackrat", status: "online", meta: "homelab" },
-  { handle: "palette", status: "online", meta: "art mode" },
-];
+// Use same backend switching logic as main.js
+const CHAT_API_BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://terminalboard-backend.onrender.com";
 
-let CHAT_MESSAGES = [
-  {
-    id: 1,
-    type: "system",
-    author: "SYSTEM",
-    text: "Welcome to /lobby/ — Matrix Lounge. This is a frontend-only demo.",
-    time: "23:41",
-  },
-  {
-    id: 2,
-    type: "user",
-    author: "anon42",
-    text: "Feels like signing into an AOL room in 2004.",
-    time: "23:42",
-  },
-  {
-    id: 3,
-    type: "user",
-    author: "dialup",
-    text: "Matrix rain + old UI = peak internet vibes.",
-    time: "23:42",
-  },
-  {
-    id: 4,
-    type: "user",
-    author: "ghost",
-    text: "Backend and real-time will come later once APIs are wired.",
-    time: "23:43",
-  },
-];
+function getCurrentUser() {
+  try {
+    const raw = localStorage.getItem("tb_user");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("Error reading tb_user from localStorage:", err);
+    return null;
+  }
+}
 
-function renderUsers() {
-  const list = $("#chatUserList");
+// Render one message
+function createMessageElement(msg) {
+  const div = document.createElement("div");
+  div.classList.add("chat-message");
+
+  // basic retro style: author + time + text
+  const time = msg.createdAt ? new Date(msg.createdAt) : new Date();
+  const timeStr = time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  div.innerHTML = `
+    <div class="chat-message__meta">
+      <span class="chat-message__author">${msg.author || "anon"}</span>
+      <span class="chat-message__time">${timeStr}</span>
+    </div>
+    <div class="chat-message__text">
+      ${escapeHtml(msg.text || "")}
+    </div>
+  `;
+
+  return div;
+}
+
+// Very small XSS safety for text content
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderUsersSidebar(currentUser) {
+  const list = $("#chatUsersList");
   if (!list) return;
 
+  // For now just show the current user as "online"
   list.innerHTML = "";
 
-  CHAT_USERS.forEach((u) => {
-    const li = document.createElement("li");
-    li.className = "user-list__item";
-
-    const dot = document.createElement("span");
-    dot.className = "user-status-dot";
-    if (u.status === "away") dot.classList.add("user-status-dot--away");
-    if (u.status === "offline") dot.classList.add("user-status-dot--offline");
-
-    const handle = document.createElement("span");
-    handle.className = "user-handle";
-    handle.textContent = u.handle;
-
-    const meta = document.createElement("span");
-    meta.className = "user-meta";
-    meta.textContent = u.meta;
-
-    li.appendChild(dot);
-    li.appendChild(handle);
-    li.appendChild(meta);
-    list.appendChild(li);
-  });
+  const me = document.createElement("li");
+  me.classList.add("chat-user");
+  me.innerHTML = `
+    <span class="chat-user__handle">${currentUser?.username || "anon"}</span>
+    <span class="chat-user__status chat-user__status--online">online</span>
+    <span class="chat-user__meta">you</span>
+  `;
+  list.appendChild(me);
 }
 
-function renderMessages() {
-  const container = $("#chatMessages");
-  if (!container) return;
+async function fetchHistory() {
+  const messagesContainer = $("#chatMessages");
+  if (!messagesContainer) return;
 
-  container.innerHTML = "";
+  try {
+    const res = await fetch(`${CHAT_API_BASE_URL}/api/chat/messages?room=lobby`);
+    if (!res.ok) {
+      console.error("Failed to load messages:", res.status);
+      return;
+    }
 
-  CHAT_MESSAGES.forEach((msg) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "chat-message";
+    const data = await res.json();
+    const messages = data.messages || [];
 
-    if (msg.type === "self") wrapper.classList.add("chat-message--self");
-    if (msg.type === "system") wrapper.classList.add("chat-message--system");
+    messagesContainer.innerHTML = "";
+    messages.forEach((m) => {
+      const el = createMessageElement(m);
+      messagesContainer.appendChild(el);
+    });
 
-    wrapper.innerHTML = `
-      <div class="chat-message__meta">
-        <span class="chat-message__author">${msg.author}</span>
-        <span class="chat-message__time">[${msg.time}]</span>
-      </div>
-      <div class="chat-message__text">${msg.text}</div>
-    `;
-
-    container.appendChild(wrapper);
-  });
-
-  container.scrollTop = container.scrollHeight;
-}
-
-function getCurrentTime() {
-  const d = new Date();
-  const h = String(d.getHours()).padStart(2, "0");
-  const m = String(d.getMinutes()).padStart(2, "0");
-  return `${h}:${m}`;
-}
-
-function handleChatSubmit(e) {
-  e.preventDefault();
-  const input = $("#chatInput");
-  if (!input) return;
-
-  const text = input.value.trim();
-  if (!text) return;
-
-  CHAT_MESSAGES.push({
-    id: CHAT_MESSAGES.length + 1,
-    type: "self",
-    author: "you",
-    text,
-    time: getCurrentTime(),
-  });
-
-  input.value = "";
-  renderMessages();
+    // scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  } catch (err) {
+    console.error("Error fetching chat history:", err);
+  }
 }
 
 function initChat() {
   const form = $("#chatForm");
   const input = $("#chatInput");
+  const messagesContainer = $("#chatMessages");
 
-  if (!form || !input) return;
+  if (!form || !input || !messagesContainer) return;
 
-  renderUsers();
-  renderMessages();
+  const user = getCurrentUser();
 
-  form.addEventListener("submit", handleChatSubmit);
+  // If no user, you can choose to redirect to login
+  if (!user) {
+    // Simple behavior: treat as anon, or:
+    // window.location.href = "../index.html";
+    console.warn("No logged in user found, using 'anon'");
+  }
+
+  renderUsersSidebar(user);
+
+  // Fetch existing messages first
+  fetchHistory();
+
+  // Socket.io connection
+  const socketBase =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://terminalboard-backend.onrender.com";
+
+  const socket = io(socketBase);
+
+  // Listen for incoming messages
+  socket.on("chatMessage", (msg) => {
+    const el = createMessageElement(msg);
+    messagesContainer.appendChild(el);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  });
+
+  // Handle sending messages
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    const author = user?.username || "anon";
+
+    socket.emit("chatMessage", {
+      author,
+      text,
+    });
+
+    input.value = "";
+    input.focus();
+  });
 }
 
 document.addEventListener("DOMContentLoaded", initChat);
