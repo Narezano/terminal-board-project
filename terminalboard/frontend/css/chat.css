@@ -1,0 +1,221 @@
+/* Chatroom layout */
+
+.chat-layout {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: minmax(0, 2.1fr) minmax(220px, 0.9fr);
+  gap: 18px;
+}
+
+/* main chat window */
+
+.chat-window {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-neon);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+
+.chat-window__titlebar {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.4);
+  background: linear-gradient(to bottom, #004000, #001a00);
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-room-name {
+  font-family: "Press Start 2P", system-ui;
+  color: var(--text-strong);
+}
+
+.chat-room-meta {
+  color: var(--muted);
+}
+
+/* message area */
+
+.chat-messages {
+  flex: 1;
+  padding: 8px 10px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.chat-message {
+  margin-bottom: 6px;
+}
+
+.chat-message__meta {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.chat-message__author {
+  color: var(--text-strong);
+}
+
+.chat-message__time {
+  margin-left: 4px;
+}
+
+.chat-message__text {
+  color: var(--text);
+}
+
+.chat-message--self .chat-message__author {
+  color: #ffffff;
+}
+
+.chat-message--system .chat-message__author {
+  color: var(--accent);
+}
+
+.chat-message--system .chat-message__text {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* input bar */
+
+.chat-input-bar {
+  border-top: 1px solid rgba(0, 255, 0, 0.4);
+  padding: 8px 8px 8px 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.chat-input-bar input[type="text"] {
+  border-radius: 0;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.9);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 7px 8px;
+}
+
+.chat-input-bar input::placeholder {
+  color: #0f7f3a;
+}
+
+.chat-input-bar input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-neon);
+}
+
+.chat-send-btn {
+  font-size: 9px;
+  padding-inline: 12px;
+}
+
+/* sidebar */
+
+.chat-sidebar {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-neon);
+  border-radius: 0;
+  padding: 10px 10px 8px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chat-sidebar__section {
+  border-top: 1px solid rgba(0, 255, 0, 0.4);
+  padding-top: 6px;
+}
+
+.chat-sidebar__section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.chat-sidebar__title {
+  font-family: "Press Start 2P", system-ui;
+  font-size: 10px;
+  color: var(--text-strong);
+  margin-bottom: 4px;
+}
+
+.user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.user-list__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.user-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.user-status-dot--away {
+  background: #ffb020;
+}
+
+.user-status-dot--offline {
+  background: #666666;
+}
+
+.user-handle {
+  color: var(--text);
+}
+
+.user-meta {
+  font-size: 9px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+/* rooms list */
+
+.room-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+
+.room-list__item {
+  padding: 3px 2px;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.25);
+}
+
+.room-list__item--active {
+  background: rgba(0, 60, 0, 0.9);
+  color: var(--text-strong);
+}
+
+.chat-sidebar__hint {
+  margin-top: 6px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+/* responsive */
+
+@media (max-width: 900px) {
+  .chat-layout {
+    grid-template-columns: 1fr;
+  }
+}
