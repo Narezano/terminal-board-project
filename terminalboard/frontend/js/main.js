@@ -1,31 +1,79 @@
-// Simple helper
+// frontend/js/main.js
+
+// Helper to get elements
 const $ = (sel) => document.querySelector(sel);
 
-/* ========== LOGIN DEMO ========== */
-function login(event) {
+// Decide which API to call: local dev or deployed backend
+const API_BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://terminalboard-backend.onrender.com";
+
+// Helper to show messages
+function setMessage(el, text, type = "info") {
+  if (!el) return;
+  el.textContent = text;
+  el.className = `message message--${type}`;
+}
+
+/* ========== LOGIN (REAL BACKEND) ========== */
+async function login(event) {
   if (event) event.preventDefault();
 
-  const username = $("#loginUsername")?.value.trim();
+  const usernameOrEmail = $("#loginUsername")?.value.trim();
   const password = $("#loginPassword")?.value.trim();
   const msg = $("#loginMessage");
 
-  if (!msg) return;
-
-  if (!username || !password) {
-    msg.textContent = "ENTER HANDLE AND PASSPHRASE";
-    msg.className = "message message--error";
+  if (!usernameOrEmail || !password) {
+    setMessage(msg, "ENTER HANDLE AND PASSPHRASE", "error");
     return;
   }
 
-  msg.textContent = "DEMO ONLY — BACKEND AUTH NOT WIRED YET.";
-  msg.className = "message message--success";
+  try {
+    setMessage(msg, "CHECKING CREDENTIALS...", "info");
+
+    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ usernameOrEmail, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage(msg, data.message || "LOGIN FAILED", "error");
+      return;
+    }
+
+    // Store token + user for later (boards, chat, etc.)
+    if (data.token) {
+      localStorage.setItem("tb_token", data.token);
+    }
+    if (data.user) {
+      localStorage.setItem("tb_user", JSON.stringify(data.user));
+    }
+
+    setMessage(msg, "ACCESS GRANTED. REDIRECTING...", "success");
+
+    // Redirect to boards page from login (root index.html)
+    setTimeout(() => {
+      window.location.href = "frontend/boards.html";
+    }, 800);
+  } catch (err) {
+    console.error("Login error:", err);
+    setMessage(msg, "NETWORK ERROR. TRY AGAIN.", "error");
+  }
 }
 
 const loginForm = $("#loginForm");
-if (loginForm) loginForm.addEventListener("submit", login);
+if (loginForm) {
+  loginForm.addEventListener("submit", login);
+}
 
-/* ========== SIGNUP DEMO ========== */
-function signup(event) {
+/* ========== SIGNUP (REAL BACKEND) ========== */
+async function signup(event) {
   if (event) event.preventDefault();
 
   const username = $("#signupUsername")?.value.trim();
@@ -35,30 +83,57 @@ function signup(event) {
   const tosChecked = $("#signupTos")?.checked;
   const msg = $("#signupMessage");
 
-  if (!msg) return;
-
   if (!username || !email || !password || !confirm) {
-    msg.textContent = "FILL ALL FIELDS";
-    msg.className = "message message--error";
+    setMessage(msg, "ALL FIELDS REQUIRED", "error");
+    return;
+  }
+
+  if (password.length < 6) {
+    setMessage(msg, "PASSPHRASE MUST BE AT LEAST 6 CHARACTERS", "error");
     return;
   }
 
   if (password !== confirm) {
-    msg.textContent = "PASS PHRASES DO NOT MATCH";
-    msg.className = "message message--error";
+    setMessage(msg, "PASSPHRASES DO NOT MATCH", "error");
     return;
   }
 
   if (!tosChecked) {
-    msg.textContent = "YOU MUST ACCEPT THE RULES";
-    msg.className = "message message--error";
+    setMessage(msg, "YOU MUST ACCEPT THE RULES", "error");
     return;
   }
 
-  msg.textContent =
-    "SIGNUP DEMO COMPLETE. REAL ACCOUNT CREATION WILL USE THE SERVER LATER.";
-  msg.className = "message message--success";
+  try {
+    setMessage(msg, "CREATING ACCOUNT...", "info");
+
+    const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage(msg, data.message || "SIGNUP FAILED", "error");
+      return;
+    }
+
+    setMessage(msg, "SIGNUP SUCCESS. REDIRECTING TO SIGN IN...", "success");
+
+    // After signup, send them back to login page
+    setTimeout(() => {
+      window.location.href = "../index.html";
+    }, 1200);
+  } catch (err) {
+    console.error("Signup error:", err);
+    setMessage(msg, "NETWORK ERROR. TRY AGAIN.", "error");
+  }
 }
 
 const signupForm = $("#signupForm");
-if (signupForm) signupForm.addEventListener("submit", signup);
+if (signupForm) {
+  signupForm.addEventListener("submit", signup);
+}
