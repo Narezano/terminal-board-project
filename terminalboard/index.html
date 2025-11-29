@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TerminalBoard — Sign In</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="frontend/css/styles.css" />
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <header class="tb-header">
+    <div class="tb-logo">TERMINAL<span>BOARD</span></div>
+    <nav class="tb-nav">
+      <a href="frontend/boards.html">Boards</a>
+      <a href="frontend/chat.html">Chatroom</a>
+      <a href="#">About</a>
+    </nav>
+  </header>
+
+  <main class="tb-main">
+    <section class="auth-card">
+      <div class="auth-card__titlebar">
+        <span class="dot dot--red"></span>
+        <span class="dot dot--yellow"></span>
+        <span class="dot dot--green"></span>
+        <span class="auth-card__title">/auth/login</span>
+      </div>
+
+      <div class="auth-card__body">
+        <h1 class="auth-heading">ACCESS TERMINAL</h1>
+        <p class="auth-subtext">
+          Enter your handle and passphrase to jack into TerminalBoard.
+        </p>
+
+        <form id="loginForm" class="auth-form">
+          <label for="loginUsername">Handle</label>
+          <input
+            type="text"
+            id="loginUsername"
+            placeholder="anon42"
+            autocomplete="username"
+          />
+
+          <label for="loginPassword">Passphrase</label>
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+
+          <div class="auth-form__footer">
+            <label class="checkbox">
+              <input type="checkbox" id="loginRemember" />
+              <span>Remember session</span>
+            </label>
+
+            <button type="submit" class="btn-primary">
+              <span>&gt; ENTER</span>
+            </button>
+          </div>
+        </form>
+
+        <p id="loginMessage" class="message"></p>
+
+        <p class="auth-link">
+          No account?
+          <a href="frontend/signup.html">Create one</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="tb-footer">
+    <span>v0.1 · FRONTEND DEMO ONLY</span>
+  </footer>
+
+  <script src="frontend/js/main.js"></script>
+  <script src="frontend/js/matrix.js"></script>
+</body>
+</html>
