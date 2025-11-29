@@ -13,9 +13,10 @@
   <header class="tb-header">
     <div class="tb-logo">TERMINAL<span>BOARD</span></div>
     <nav class="tb-nav">
-      <a href="../index.html">Sign in</a>
+      <!-- Sign in removed, replaced with Logout -->
       <a href="boards.html">Boards</a>
       <a href="chat.html" class="tb-nav__active">Chatroom</a>
+      <a href="#" id="navLogout">Logout</a>
     </nav>
   </header>
 
@@ -73,6 +74,11 @@
   <footer class="tb-footer">
     <span>TERMINALBOARD · CHATROOM</span>
   </footer>
+
+  <!-- Protect this page -->
+  <script src="js/auth-guard.js"></script>
+  <!-- Handle logout -->
+  <script src="js/logout.js"></script>
 
   <script src="https://terminalboard-backend.onrender.com/socket.io/socket.io.js"></script>
   <script src="js/chat.js"></script>
