@@ -3,7 +3,7 @@
 // Small helper
 const $ = (sel) => document.querySelector(sel);
 
-// Use same backend switching logic as main.js
+// Backend base URL (local vs deployed)
 const CHAT_API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000"
@@ -20,12 +20,24 @@ function getCurrentUser() {
   }
 }
 
+// Very small XSS safety for text content
+function escapeHtml(str) {
+  return (str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 // Render one message
-function createMessageElement(msg) {
+function createMessageElement(msg, currentUsername) {
   const div = document.createElement("div");
   div.classList.add("chat-message");
 
-  // basic retro style: author + time + text
+  const authorName = msg.author || "anon";
+  if (currentUsername && authorName === currentUsername) {
+    div.classList.add("chat-message--self");
+  }
+
   const time = msg.createdAt ? new Date(msg.createdAt) : new Date();
   const timeStr = time.toLocaleTimeString([], {
     hour: "2-digit",
@@ -34,7 +46,7 @@ function createMessageElement(msg) {
 
   div.innerHTML = `
     <div class="chat-message__meta">
-      <span class="chat-message__author">${msg.author || "anon"}</span>
+      <span class="chat-message__author">${escapeHtml(authorName)}</span>
       <span class="chat-message__time">${timeStr}</span>
     </div>
     <div class="chat-message__text">
@@ -45,34 +57,52 @@ function createMessageElement(msg) {
   return div;
 }
 
-// Very small XSS safety for text content
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
+// Render active users in sidebar
+function renderUsersSidebar(currentUser, onlineUsers) {
+  const list =
+    $("#chatUsersList") || document.querySelector(".user-list");
 
-function renderUsersSidebar(currentUser) {
-  const list = $("#chatUsersList");
-  if (!list) return;
+  if (!list) {
+    console.warn("No user list element found (#chatUsersList or .user-list)");
+    return;
+  }
 
-  // For now just show the current user as "online"
   list.innerHTML = "";
 
-  const me = document.createElement("li");
-  me.classList.add("chat-user");
-  me.innerHTML = `
-    <span class="chat-user__handle">${currentUser?.username || "anon"}</span>
-    <span class="chat-user__status chat-user__status--online">online</span>
-    <span class="chat-user__meta">you</span>
-  `;
-  list.appendChild(me);
+  const currentName = currentUser?.username || "anon";
+
+  const usersToRender =
+    Array.isArray(onlineUsers) && onlineUsers.length
+      ? onlineUsers
+      : [currentName];
+
+  usersToRender.forEach((name) => {
+    const li = document.createElement("li");
+    li.classList.add("user-list__item");
+
+    const isMe = name === currentName;
+
+    li.innerHTML = `
+      <span class="user-status-dot"></span>
+      <span class="user-handle">${escapeHtml(name)}</span>
+      ${
+        isMe
+          ? '<span class="user-meta">you</span>'
+          : '<span class="user-meta">online</span>'
+      }
+    `;
+
+    list.appendChild(li);
+  });
 }
 
-async function fetchHistory() {
+// Load last messages from REST API
+async function fetchHistory(currentUsername) {
   const messagesContainer = $("#chatMessages");
-  if (!messagesContainer) return;
+  if (!messagesContainer) {
+    console.warn("#chatMessages not found in DOM");
+    return;
+  }
 
   try {
     const res = await fetch(`${CHAT_API_BASE_URL}/api/chat/messages?room=lobby`);
@@ -86,7 +116,7 @@ async function fetchHistory() {
 
     messagesContainer.innerHTML = "";
     messages.forEach((m) => {
-      const el = createMessageElement(m);
+      const el = createMessageElement(m, currentUsername);
       messagesContainer.appendChild(el);
     });
 
@@ -102,21 +132,24 @@ function initChat() {
   const input = $("#chatInput");
   const messagesContainer = $("#chatMessages");
 
-  if (!form || !input || !messagesContainer) return;
+  if (!form || !input || !messagesContainer) {
+    console.error("Chat form or messages container not found in DOM");
+    return;
+  }
 
   const user = getCurrentUser();
 
-  // If no user, you can choose to redirect to login
   if (!user) {
-    // Simple behavior: treat as anon, or:
-    // window.location.href = "../index.html";
-    console.warn("No logged in user found, using 'anon'");
+    console.warn("No logged in user found in localStorage (tb_user). Using 'anon'.");
   }
 
-  renderUsersSidebar(user);
+  const username = user?.username || "anon";
 
-  // Fetch existing messages first
-  fetchHistory();
+  // Initial sidebar render (in case socket event is slow)
+  renderUsersSidebar(user, [username]);
+
+  // Fetch existing messages
+  fetchHistory(username);
 
   // Socket.io connection
   const socketBase =
@@ -124,11 +157,32 @@ function initChat() {
       ? "http://localhost:5000"
       : "https://terminalboard-backend.onrender.com";
 
-  const socket = io(socketBase);
+  console.log("Connecting to socket.io at:", socketBase);
+
+  const socket = io(socketBase, {
+    query: {
+      username,
+    },
+  });
+
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected");
+  });
+
+  // Active users list
+  socket.on("roomUsers", (payload) => {
+    console.log("roomUsers event:", payload);
+    const { users } = payload || {};
+    renderUsersSidebar(user, users);
+  });
 
   // Listen for incoming messages
   socket.on("chatMessage", (msg) => {
-    const el = createMessageElement(msg);
+    const el = createMessageElement(msg, username);
     messagesContainer.appendChild(el);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   });
@@ -139,10 +193,8 @@ function initChat() {
     const text = input.value.trim();
     if (!text) return;
 
-    const author = user?.username || "anon";
-
     socket.emit("chatMessage", {
-      author,
+      author: username,
       text,
     });
 
