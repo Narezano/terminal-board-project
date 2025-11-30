@@ -9,7 +9,7 @@ const API_BASE_URL =
     ? "http://localhost:5000"
     : "https://terminalboard-backend.onrender.com";
 
-// Helper to show messages
+// Helper to show messages...
 function setMessage(el, text, type = "info") {
   if (!el) return;
   el.textContent = text;
