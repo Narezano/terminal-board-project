@@ -9,11 +9,10 @@ router.get("/messages", async (req, res) => {
     const room = req.query.room || "lobby";
 
     const messages = await Message.find({ room })
-      .sort({ createdAt: -1 }) // newest first
-      .limit(50) // last 50 messages
+      .sort({ createdAt: -1 })
+      .limit(50)
       .lean();
 
-    // reverse so frontend sees oldest → newest
     res.json({
       messages: messages.reverse(),
     });
