@@ -1,4 +1,6 @@
-/* Chatroom layout */
+/* =========================================================
+   1) Layout (main grid)
+========================================================= */
 
 .chat-layout {
   width: 100%;
@@ -8,20 +10,26 @@
   gap: 18px;
 }
 
-/* main chat window */
+/* =========================================================
+   2) Chat window (container)
+========================================================= */
 
 .chat-window {
   background: var(--bg-panel);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-neon);
   border-radius: 0;
+
   display: flex;
   flex-direction: column;
 
-  /* FIXED HEIGHT */
+  /* Fixed height behavior (with mobile override below) */
   height: 420px;
   max-height: 60vh;
   overflow: hidden;
+
+  /* Needed for the floating picker positioning */
+  position: relative;
 }
 
 .chat-window__titlebar {
@@ -29,6 +37,7 @@
   border-bottom: 1px solid rgba(0, 255, 0, 0.4);
   background: linear-gradient(to bottom, #004000, #001a00);
   font-size: 10px;
+
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -43,12 +52,56 @@
   color: var(--muted);
 }
 
-/* message area */
+/* =========================================================
+   3) Status + character counter row
+========================================================= */
+
+.chat-statusbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.chat-conn {
+  font-size: 9px;
+  padding: 2px 6px;
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.chat-conn--online {
+  color: var(--text-strong);
+  border-color: rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.25);
+}
+
+.chat-conn--reconnecting {
+  color: #ffb020;
+  border-color: rgba(255, 176, 32, 0.55);
+}
+
+.chat-conn--offline {
+  color: #ff6666;
+  border-color: rgba(255, 102, 102, 0.5);
+}
+
+.chat-charcount {
+  font-size: 9px;
+  color: var(--muted);
+}
+
+/* =========================================================
+   4) Messages area + scrollbar styling
+========================================================= */
 
 .chat-messages {
   flex: 1;
   padding: 8px 10px;
   overflow-y: auto;
+
   font-size: 11px;
   line-height: 1.4;
 
@@ -78,13 +131,31 @@
   box-shadow: 0 0 8px rgba(0, 255, 0, 1);
 }
 
+/* =========================================================
+   5) Message “bubbles” + grouping + system messages
+   NOTE: This section reflects your FINAL behavior after all
+   the previous overrides in the old file.
+========================================================= */
+
+/* Base message alignment: other users are left-aligned */
 .chat-message {
   margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
+/* Your messages align to the right */
+.chat-message--self {
+  align-items: flex-end;
+}
+
+/* Meta line above the bubble */
 .chat-message__meta {
   font-size: 10px;
   color: var(--muted);
+  max-width: 70%;
+  width: auto;
 }
 
 .chat-message__author {
@@ -95,38 +166,143 @@
   margin-left: 4px;
 }
 
+/* Hide your own name (Messenger-style) */
+.chat-message--self .chat-message__author {
+  display: none;
+}
+
+/* The actual bubble content (text + media) */
 .chat-message__text {
   color: var(--text);
+
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  max-width: 70%;
+  padding: 6px 8px;
+
+  border: 1px solid rgba(0, 255, 0, 0.25);
+  background: rgba(0, 0, 0, 0.55);
+
+  word-break: break-word;
 }
 
-.chat-message--self .chat-message__author {
-  color: #ffffff;
+/* Your bubble variant */
+.chat-message--self .chat-message__text {
+  align-items: flex-end;
+  border-color: rgba(0, 255, 0, 0.6);
+  background: rgba(0, 40, 0, 0.55);
 }
 
-.chat-message--system .chat-message__author {
-  color: var(--accent);
+/* GIF/media inside the bubble */
+.chat-media {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 4px;
+  border: 1px solid rgba(0, 255, 0, 0.35);
+}
+
+/* Grouping: hide meta line when messages are grouped */
+.chat-message--grouped {
+  margin-top: 4px;
+}
+.chat-message--grouped .chat-message__meta {
+  display: none;
+}
+
+/* System messages: centered, dashed border, muted text */
+.chat-message--system {
+  align-items: center;
+  border: 1px dashed rgba(0, 255, 0, 0.35);
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0.95;
+}
+
+/* System messages don’t show the normal meta line */
+.chat-message--system .chat-message__meta {
+  display: none;
 }
 
 .chat-message--system .chat-message__text {
+  max-width: 95%;
+  text-align: center;
+
+  font-size: 11px;
   color: var(--muted);
   font-style: italic;
+  letter-spacing: 0.3px;
 }
 
-/* input bar */
+/* =========================================================
+   6) Typing indicator + “new messages” button
+========================================================= */
+
+.chat-typing {
+  min-height: 16px;
+  font-size: 10px;
+  color: var(--muted);
+  padding: 6px 2px 0;
+  letter-spacing: 0.3px;
+}
+
+/* Appears only when user scrolls up */
+.chat-newmsg-btn {
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--text-strong);
+
+  font-size: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.chat-newmsg-btn:hover {
+  box-shadow: var(--shadow-neon);
+}
+
+/* =========================================================
+   7) Input bar + tool buttons
+========================================================= */
 
 .chat-input-bar {
   border-top: 1px solid rgba(0, 255, 0, 0.4);
   padding: 8px 8px 8px 10px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+
+  /* Messenger-style row sizing */
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
+.chat-tool-btn {
+  flex: 0 0 auto;
+
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--text-strong);
+
+  font-size: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.chat-tool-btn:hover {
+  box-shadow: var(--shadow-neon);
+}
+
 .chat-input-bar input[type="text"] {
+  /* Flex behavior is what makes the input stretch correctly */
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+
   border-radius: 0;
   border: 1px solid var(--border);
   background: rgba(0, 0, 0, 0.9);
   color: var(--text);
+
   font-family: inherit;
   font-size: 11px;
   padding: 7px 8px;
@@ -143,19 +319,26 @@
 }
 
 .chat-send-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+
   font-size: 9px;
   padding-inline: 12px;
 }
 
-/* sidebar */
+/* =========================================================
+   8) Sidebar (users + rooms)
+========================================================= */
 
 .chat-sidebar {
   background: var(--bg-panel);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-neon);
   border-radius: 0;
+
   padding: 10px 10px 8px;
   font-size: 11px;
+
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -178,6 +361,7 @@
   margin-bottom: 4px;
 }
 
+/* Active users list */
 .user-list {
   list-style: none;
   padding: 0;
@@ -216,8 +400,7 @@
   margin-left: auto;
 }
 
-/* rooms list */
-
+/* Rooms list */
 .room-list {
   list-style: none;
   padding: 0;
@@ -241,101 +424,257 @@
   color: var(--muted);
 }
 
-/* responsive */
+/* =========================================================
+   9) Picker (Emoji + GIF popover)
+========================================================= */
+
+.picker {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 58px;
+  max-width: 560px;
+  margin: 0 auto;
+
+  border: 1px solid rgba(0, 255, 0, 0.45);
+  background: rgba(0, 0, 0, 0.92);
+  box-shadow: var(--shadow-neon);
+
+  padding: 10px;
+  z-index: 50;
+  border-radius: 12px;
+}
+
+/* Top row: search + close */
+.picker__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.picker__search {
+  flex: 1;
+  min-width: 0;
+
+  border-radius: 999px;
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--text);
+
+  font-size: 12px;
+  padding: 8px 12px;
+  outline: none;
+}
+
+.picker__close {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--text-strong);
+
+  cursor: pointer;
+}
+
+.picker__close:hover {
+  box-shadow: var(--shadow-neon);
+}
+
+/* Tabs */
+.picker__tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.picker__tab {
+  width: 44px;
+  height: 34px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 0, 0.25);
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--text-strong);
+
+  cursor: pointer;
+}
+
+.picker__tab--active {
+  border-color: rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.25);
+}
+
+/* Emoji categories row */
+.picker__cats {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.picker__catbtn {
+  border: 1px solid rgba(0, 255, 0, 0.25);
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--text-strong);
+
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 10px;
+}
+
+.picker__catbtn--active {
+  border-color: rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.25);
+}
+
+/* Grid content (emoji + gif share this) */
+.picker__grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+
+  max-height: 240px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+/* Emoji cells */
+.picker__emoji {
+  width: 100%;
+  height: 36px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 0, 0.15);
+  background: rgba(0, 0, 0, 0.55);
+
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.picker__emoji:hover {
+  box-shadow: var(--shadow-neon);
+}
+
+/* GIF thumbnails */
+.picker__gif {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 0, 0.25);
+  cursor: pointer;
+}
+
+.picker__gif:hover {
+  box-shadow: var(--shadow-neon);
+}
+
+.picker__error {
+  margin-top: 8px;
+  font-size: 10px;
+  color: #ff6666;
+}
+
+/* GIF grid scroll fix (kept exactly) */
+#gifGrid {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Optional: GIF grid scrollbar (keeps retro look) */
+#gifGrid::-webkit-scrollbar {
+  width: 6px;
+}
+#gifGrid::-webkit-scrollbar-thumb {
+  background: var(--accent);
+}
+#gifGrid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* =========================================================
+   10) Pending media bar (queued GIFs)
+========================================================= */
+
+.pending-media {
+  border-top: 1px solid rgba(0, 255, 0, 0.25);
+  background: rgba(0, 0, 0, 0.65);
+
+  padding: 8px 10px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.pending-media__item {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.pending-media__thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 0, 0.25);
+}
+
+.pending-media__remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--text-strong);
+
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+
+.pending-media__remove:hover {
+  box-shadow: var(--shadow-neon);
+}
+
+/* =========================================================
+   11) Utilities
+========================================================= */
+
+/* Keep the browser-native [hidden] attribute behavior consistent */
+[hidden] {
+  display: none !important;
+}
+
+/* =========================================================
+   12) Responsive tweaks
+========================================================= */
 
 @media (max-width: 900px) {
   .chat-layout {
     grid-template-columns: 1fr;
   }
-}
 
-/* status + counter row */
-.chat-statusbar{
-  display:flex;
-  justify-content: space-between;
-  align-items:center;
-  gap:10px;
-  margin-top:4px;
-}
-
-.chat-conn{
-  font-size: 9px;
-  padding: 2px 6px;
-  border: 1px solid rgba(0,255,0,0.35);
-  color: var(--muted);
-  background: rgba(0,0,0,0.55);
-}
-
-.chat-conn--online{
-  color: var(--text-strong);
-  border-color: rgba(0,255,0,0.6);
-  box-shadow: 0 0 8px rgba(0,255,0,0.25);
-}
-
-.chat-conn--reconnecting{
-  color: #ffb020;
-  border-color: rgba(255,176,32,0.55);
-}
-
-.chat-conn--offline{
-  color: #ff6666;
-  border-color: rgba(255,102,102,0.5);
-}
-
-.chat-charcount{
-  font-size: 9px;
-  color: var(--muted);
-}
-
-/* “new messages” button (only appears if user scrolled up) */
-.chat-newmsg-btn{
-  border: 1px solid rgba(0,255,0,0.4);
-  background: rgba(0,0,0,0.75);
-  color: var(--text-strong);
-  font-size: 10px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-.chat-newmsg-btn:hover{
-  box-shadow: var(--shadow-neon);
-}
-
-/* Optional: better height on mobile */
-@media (max-width: 900px) {
-  .chat-window{
+  /* Better height on smaller screens (kept from original) */
+  .chat-window {
     height: 60vh;
     max-height: 70vh;
   }
 }
 
-/* system messages (join/leave/info) */
-.chat-message--system{
-  border: 1px dashed rgba(0,255,0,0.35);
-  background: rgba(0,0,0,0.55);
-  opacity: 0.95;
-}
-.chat-message--system .chat-message__meta{
-  display: none;
-}
-.chat-message--system .chat-message__text{
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.3px;
-}
-
-/* message grouping: hide meta when grouped */
-.chat-message--grouped .chat-message__meta{
-  display: none;
-}
-.chat-message--grouped{
-  margin-top: 4px;
-}
-
-/* typing indicator */
-.chat-typing{
-  min-height: 16px;
-  font-size: 10px;
-  color: var(--muted);
-  padding: 6px 2px 0;
-  letter-spacing: 0.3px;
+@media (max-width: 600px) {
+  .picker__grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
