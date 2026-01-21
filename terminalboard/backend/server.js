@@ -81,6 +81,22 @@ io.on("connection", (socket) => {
   // Notify everyone in the room about current users
   broadcastRoomUsers(room);
 
+  // ✅ NEW: Typing indicator relay (to everyone else in the room)
+  socket.on("typing", (payload) => {
+    try {
+      const who = payload?.username;
+      const whichRoom = payload?.room || room;
+
+      if (!who || typeof who !== "string") return;
+      if (!whichRoom || typeof whichRoom !== "string") return;
+
+      // Send to everyone except the typist
+      socket.to(whichRoom).emit("typing", { username: who });
+    } catch (err) {
+      console.error("Error handling typing:", err);
+    }
+  });
+
   // Listen for chat messages from clients
   socket.on("chatMessage", async (payload) => {
     try {
