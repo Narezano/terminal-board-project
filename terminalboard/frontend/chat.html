@@ -1,74 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- =========================
+       TerminalBoard — Chatroom
+       Page shell + styles only
+  ========================== -->
   <meta charset="UTF-8" />
   <title>TerminalBoard — Chatroom</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Base site styles (shared across pages) -->
   <link rel="stylesheet" href="css/styles.css" />
+  <!-- Chat-specific styles -->
   <link rel="stylesheet" href="css/chat.css" />
 </head>
+
 <body>
+  <!-- Matrix background effect (drawn by matrix.js) -->
   <canvas id="matrix"></canvas>
 
+  <!-- =========================
+       Top navigation
+  ========================== -->
   <header class="tb-header">
     <div class="tb-logo">TERMINAL<span>BOARD</span></div>
+
     <nav class="tb-nav">
       <a href="boards.html">Boards</a>
       <a href="chat.html" class="tb-nav__active">Chatroom</a>
+      <!-- Logout is handled by logout.js (click listener) -->
       <a href="#" id="navLogout">Logout</a>
     </nav>
   </header>
 
+  <!-- =========================
+       Main content
+  ========================== -->
   <main class="tb-main">
     <section class="chat-layout">
-      <!-- Chat window -->
+      <!-- =========================
+           Chat window
+      ========================== -->
       <section class="chat-window">
+        <!-- Header / title bar (room name + status + counters) -->
         <header class="chat-window__titlebar">
-          <span class="chat-room-name">ROOM: /lobby/ — Matrix Lounge</span>
+          <span class="chat-room-name">ROOM: /lobby/ — TerminalBoard</span>
           <span class="chat-room-meta">Retro chat · Demo only</span>
 
-          <!-- status + char counter -->
           <div class="chat-statusbar">
+            <!-- Connection status updated by chat.js -->
             <span id="chatConnStatus" class="chat-conn chat-conn--offline">
               OFFLINE
             </span>
-            <span id="chatCharCount" class="chat-charcount">
-              0/240
-            </span>
+
+            <!-- Character counter updated by chat.js -->
+            <span id="chatCharCount" class="chat-charcount">0/240</span>
           </div>
         </header>
 
-        <div id="chatMessages" class="chat-messages">
-          <!-- messages rendered by chat.js -->
-        </div>
+        <!-- Message feed (chat.js appends messages here) -->
+        <div id="chatMessages" class="chat-messages"></div>
 
-        <!-- appears only if user scrolls up -->
-        <button
-          id="chatNewMsgBtn"
-          class="chat-newmsg-btn"
-          type="button"
-          hidden
-        >
+        <!-- Shows only if user scrolls up and new messages arrive -->
+        <button id="chatNewMsgBtn" class="chat-newmsg-btn" type="button" hidden>
           New messages ↓
         </button>
 
-        <!-- NEW: typing indicator -->
+        <!-- Typing indicator (aria-live for screen readers) -->
         <div id="chatTyping" class="chat-typing" aria-live="polite"></div>
 
+        <!-- =========================
+             Messenger-style Picker
+             Emoji + GIF in one popover
+        ========================== -->
+        <div id="picker" class="picker" hidden>
+          <div class="picker__top">
+            <input
+              id="pickerSearch"
+              class="picker__search"
+              type="text"
+              placeholder="Search..."
+              autocomplete="off"
+            />
+            <button type="button" id="pickerClose" class="picker__close">X</button>
+          </div>
+
+          <div class="picker__tabs">
+            <button
+              type="button"
+              id="tabEmoji"
+              class="picker__tab picker__tab--active"
+              aria-label="Emoji tab"
+            >
+              👾
+            </button>
+            <button
+              type="button"
+              id="tabGif"
+              class="picker__tab"
+              aria-label="GIF tab"
+            >
+              GIF
+            </button>
+          </div>
+
+          <!-- Emoji categories row (rendered by chat.js) -->
+          <div id="emojiCats" class="picker__cats"></div>
+
+          <!-- Emoji results -->
+          <div id="emojiGrid" class="picker__grid"></div>
+
+          <!-- GIF results -->
+          <div id="gifGrid" class="picker__grid" hidden></div>
+
+          <!-- GIF error/empty messages -->
+          <div id="gifError" class="picker__error"></div>
+        </div>
+
+        <!-- Pending media bar (shows selected GIFs before sending) -->
+        <div id="pendingMedia" class="pending-media" hidden></div>
+
+        <!-- =========================
+             Input bar
+        ========================== -->
         <form id="chatForm" class="chat-input-bar">
+          <!-- Picker open buttons -->
+          <button type="button" id="emojiBtn" class="chat-tool-btn" title="Emoji">
+            👾
+          </button>
+          <button type="button" id="gifBtn" class="chat-tool-btn" title="GIF">
+            GIF
+          </button>
+
+          <!-- Message input -->
           <input
             type="text"
             id="chatInput"
             placeholder="Type a message and hit Enter..."
             autocomplete="off"
           />
+
+          <!-- Submit / send -->
           <button type="submit" class="btn-primary chat-send-btn">
             <span>&gt; SEND</span>
           </button>
         </form>
       </section>
 
-      <!-- Sidebar -->
+      <!-- =========================
+           Right sidebar
+      ========================== -->
       <aside class="chat-sidebar">
         <div class="chat-sidebar__section">
           <div class="chat-sidebar__title">ACTIVE USERS</div>
@@ -76,33 +157,48 @@
         </div>
 
         <div class="chat-sidebar__section chat-sidebar__section--rooms">
-          <div class="chat-sidebar__title">ROOMS (MOCK)</div>
+          <div class="chat-sidebar__title">ROOMS</div>
           <ul class="room-list">
-            <li class="room-list__item room-list__item--active">
+            <li
+              class="room-list__item room-list__item--active"
+              data-room="lobby"
+            >
               /lobby/ — Matrix Lounge
             </li>
-            <li class="room-list__item">/codecafe/ — Dev & Debug</li>
-            <li class="room-list__item">/nostalgia/ — Old Web Stories</li>
-            <li class="room-list__item">/afk/ — Idle & Away</li>
+            <li class="room-list__item" data-room="codecafe">
+              /codecafe/ — Dev &amp; Debug
+            </li>
+            <li class="room-list__item" data-room="nostalgia">
+              /nostalgia/ — Old Web Stories
+            </li>
+            <li class="room-list__item" data-room="afk">
+              /afk/ — Idle &amp; Away
+            </li>
           </ul>
-          <p class="chat-sidebar__hint">
-            not finish, will be kalas maybe next year idk.
-          </p>
         </div>
       </aside>
     </section>
   </main>
 
+  <!-- =========================
+       Footer
+  ========================== -->
   <footer class="tb-footer">
     <span>TERMINALBOARD · CHATROOM</span>
   </footer>
 
-  <!-- Protect this page -->
+  <!-- =========================
+       Scripts (order matters)
+       - auth-guard first: blocks unauth users
+       - logout handler
+       - emoji data before chat.js
+       - chat.js wires all chat UI + sockets
+       - matrix.js draws background canvas
+  ========================== -->
   <script src="js/auth-guard.js"></script>
-  <!-- Handle logout -->
   <script src="js/logout.js"></script>
 
-  <!-- Socket.io is loaded dynamically in chat.js -->
+  <script src="js/emoji-data.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/matrix.js"></script>
 </body>
