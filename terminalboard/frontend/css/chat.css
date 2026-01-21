@@ -432,17 +432,23 @@
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: 58px;
+
+  top: 58px;      
+  bottom: 58px;   
+
   max-width: 560px;
   margin: 0 auto;
 
   border: 1px solid rgba(0, 255, 0, 0.45);
   background: rgba(0, 0, 0, 0.92);
   box-shadow: var(--shadow-neon);
-
   padding: 10px;
   z-index: 50;
   border-radius: 12px;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Top row: search + close */
@@ -537,10 +543,13 @@
   grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 6px;
 
-  max-height: 240px;
-  overflow: auto;
+  /* Grid becomes the scrolling area */
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;         
   padding-right: 4px;
 }
+
 
 /* Emoji cells */
 .picker__emoji {
@@ -581,10 +590,9 @@
 
 /* GIF grid scroll fix (kept exactly) */
 #gifGrid {
-  max-height: 260px;
-  overflow-y: auto;
   padding-right: 4px;
 }
+
 
 /* Optional: GIF grid scrollbar (keeps retro look) */
 #gifGrid::-webkit-scrollbar {
