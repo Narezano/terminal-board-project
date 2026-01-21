@@ -13,7 +13,6 @@
   <header class="tb-header">
     <div class="tb-logo">TERMINAL<span>BOARD</span></div>
     <nav class="tb-nav">
-      <!-- Sign in removed, replaced with Logout -->
       <a href="boards.html">Boards</a>
       <a href="chat.html" class="tb-nav__active">Chatroom</a>
       <a href="#" id="navLogout">Logout</a>
@@ -27,11 +26,34 @@
         <header class="chat-window__titlebar">
           <span class="chat-room-name">ROOM: /lobby/ — Matrix Lounge</span>
           <span class="chat-room-meta">Retro chat · Demo only</span>
+
+          <!-- status + char counter -->
+          <div class="chat-statusbar">
+            <span id="chatConnStatus" class="chat-conn chat-conn--offline">
+              OFFLINE
+            </span>
+            <span id="chatCharCount" class="chat-charcount">
+              0/240
+            </span>
+          </div>
         </header>
 
         <div id="chatMessages" class="chat-messages">
           <!-- messages rendered by chat.js -->
         </div>
+
+        <!-- appears only if user scrolls up -->
+        <button
+          id="chatNewMsgBtn"
+          class="chat-newmsg-btn"
+          type="button"
+          hidden
+        >
+          New messages ↓
+        </button>
+
+        <!-- NEW: typing indicator -->
+        <div id="chatTyping" class="chat-typing" aria-live="polite"></div>
 
         <form id="chatForm" class="chat-input-bar">
           <input
@@ -80,7 +102,7 @@
   <!-- Handle logout -->
   <script src="js/logout.js"></script>
 
-  <script src="https://terminalboard-backend.onrender.com/socket.io/socket.io.js"></script>
+  <!-- Socket.io is loaded dynamically in chat.js -->
   <script src="js/chat.js"></script>
   <script src="js/matrix.js"></script>
 </body>
