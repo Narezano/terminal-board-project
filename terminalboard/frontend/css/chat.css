@@ -248,3 +248,94 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* status + counter row */
+.chat-statusbar{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:10px;
+  margin-top:4px;
+}
+
+.chat-conn{
+  font-size: 9px;
+  padding: 2px 6px;
+  border: 1px solid rgba(0,255,0,0.35);
+  color: var(--muted);
+  background: rgba(0,0,0,0.55);
+}
+
+.chat-conn--online{
+  color: var(--text-strong);
+  border-color: rgba(0,255,0,0.6);
+  box-shadow: 0 0 8px rgba(0,255,0,0.25);
+}
+
+.chat-conn--reconnecting{
+  color: #ffb020;
+  border-color: rgba(255,176,32,0.55);
+}
+
+.chat-conn--offline{
+  color: #ff6666;
+  border-color: rgba(255,102,102,0.5);
+}
+
+.chat-charcount{
+  font-size: 9px;
+  color: var(--muted);
+}
+
+/* “new messages” button (only appears if user scrolled up) */
+.chat-newmsg-btn{
+  border: 1px solid rgba(0,255,0,0.4);
+  background: rgba(0,0,0,0.75);
+  color: var(--text-strong);
+  font-size: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.chat-newmsg-btn:hover{
+  box-shadow: var(--shadow-neon);
+}
+
+/* Optional: better height on mobile */
+@media (max-width: 900px) {
+  .chat-window{
+    height: 60vh;
+    max-height: 70vh;
+  }
+}
+
+/* system messages (join/leave/info) */
+.chat-message--system{
+  border: 1px dashed rgba(0,255,0,0.35);
+  background: rgba(0,0,0,0.55);
+  opacity: 0.95;
+}
+.chat-message--system .chat-message__meta{
+  display: none;
+}
+.chat-message--system .chat-message__text{
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+}
+
+/* message grouping: hide meta when grouped */
+.chat-message--grouped .chat-message__meta{
+  display: none;
+}
+.chat-message--grouped{
+  margin-top: 4px;
+}
+
+/* typing indicator */
+.chat-typing{
+  min-height: 16px;
+  font-size: 10px;
+  color: var(--muted);
+  padding: 6px 2px 0;
+  letter-spacing: 0.3px;
+}
