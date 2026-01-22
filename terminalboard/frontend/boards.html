@@ -1,56 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>TerminalBoard — Boards</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/boards.css" />
-</head>
-<body>
-  <canvas id="matrix"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <title>TerminalBoard — About & Patch Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/boards.css" />
+  </head>
 
-  <header class="tb-header">
-    <div class="tb-logo">TERMINAL<span>BOARD</span></div>
-    <nav class="tb-nav">
+  <body>
+    <canvas id="matrix"></canvas>
+    <header class="tb-header">
+      <div class="tb-logo">TERMINAL<span>BOARD</span></div>
+
       <nav class="tb-nav">
-        <a href="boards.html" class="tb-nav__active">Boards</a>
+        <!-- boards.html kept as filename for compatibility -->
+        <a href="boards.html" class="tb-nav__active">About</a>
+
         <a href="chat.html">Chatroom</a>
+
+        <!-- Logout handled by logout.js -->
         <a href="#" id="navLogout">Logout</a>
       </nav>
-  </header>
+    </header>
 
-  <main class="tb-main">
-    <section class="board-layout">
-      <aside class="panel panel--left">
-        <div class="panel__header">
-          <span class="panel__title">BOARDS DIRECTORY</span>
-          <span class="panel__meta">Select a board to view threads.</span>
-        </div>
+    <!-- =======================================================
+         MAIN CONTENT
+         ======================================================= -->
+    <main class="tb-main">
+      <!-- Two-column layout: About + Patch Notes -->
+      <section class="about-layout">
+        <!-- ===================================================
+             ABOUT PANEL
+             =================================================== -->
+        <section class="panel panel--about">
+          <div class="panel__header">
+            <span class="panel__title">ABOUT TERMINALBOARD</span>
+            <span class="panel__meta">
+              Retro web chatroom vibes. Clean. Simple. Fast.
+            </span>
+          </div>
 
-        <ul id="boardList" class="board-list"></ul>
-      </aside>
+          <div class="panel__body">
+            <p class="tb-paragraph">
+              <span class="tb-kbd">TerminalBoard</span> is a retro-themed social
+              space inspired by classic terminal UIs and early internet
+              communities — built around real-time chatrooms, lightweight
+              navigation, and a clean “no clutter” experience.
+            </p>
 
-      <section class="panel panel--right">
-        <div class="panel__header">
-          <span class="panel__title" id="currentBoardTitle">/b/ — Random</span>
-          <span class="panel__meta" id="currentBoardDesc">
-            Anything goes. Expect chaos.
-          </span>
-        </div>
+            <div class="tb-divider" role="separator" aria-hidden="true"></div>
 
-        <div id="threadList" class="thread-list"></div>
+            <!-- Two info blocks -->
+            <div class="tb-grid">
+              <div class="tb-block">
+                <div class="tb-block__title">What it is</div>
+                <ul class="tb-list">
+                  <li>Multi-room chat experience with a terminal-inspired aesthetic.</li>
+                  <li>Accounts + authentication for access control.</li>
+                  <li>Designed to feel like a “living” retro space, not a modern feed.</li>
+                </ul>
+              </div>
+
+              <div class="tb-block">
+                <div class="tb-block__title">What it is not</div>
+                <ul class="tb-list">
+                  <li>No boards. No threads. No posts.</li>
+                  <li>No “infinite scroll” content feed.</li>
+                  <li>No extra features here that could affect chat/admin.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="tb-divider" role="separator" aria-hidden="true"></div>
+
+            <!-- Notice / callout -->
+            <div class="tb-callout">
+              <div class="tb-callout__title">Heads up</div>
+              <p class="tb-paragraph tb-paragraph--tight">
+                There are currently no
+                <span class="tb-kbd">CENSORSHIP/PROFANITY FILTER</span> feature
+                yet. Will be updated in the coming months.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================
+             PATCH NOTES PANEL
+             =================================================== -->
+        <section class="panel panel--patch">
+          <div class="panel__header">
+            <span class="panel__title">PATCH NOTES / UPDATES</span>
+            <span class="panel__meta">
+              Changelog-style history of features, fixes, and updates.
+            </span>
+          </div>
+
+          <div class="panel__body">
+            <!-- Filter input (optional UI-only feature) -->
+            <div class="patch-tools">
+              <input
+                id="patchSearch"
+                class="patch-search"
+                type="search"
+                placeholder="Filter patch notes (e.g. chat, auth, ui)..."
+                autocomplete="off"
+                aria-label="Filter patch notes"
+              />
+              <span class="patch-hint">Tip: type to filter</span>
+            </div>
+
+            <!-- Patch entries -->
+            <div class="patch-list" id="patchList">
+              <!-- Newest first -->
+              <article class="patch-item" data-tags="about patchnotes ui cleanup">
+                <header class="patch-item__header">
+                  <span class="patch-item__version">v0.5.0</span>
+                  <span class="patch-item__date">2026-01-22</span>
+                  <span class="patch-item__badge">INFO PAGE</span>
+                </header>
+                <div class="patch-item__title">
+                  Boards replaced with About + Patch Notes
+                </div>
+                <ul class="tb-list tb-list--compact">
+                  <li>Removed boards UI (threads/posts) from this page.</li>
+                  <li>
+                    Converted <span class="tb-kbd">boards.html</span> into About +
+                    Updates without touching chat/admin.
+                  </li>
+                  <li>Kept filename so existing links and deployments don’t break.</li>
+                </ul>
+              </article>
+
+              <article class="patch-item" data-tags="chat realtime rooms ui">
+                <header class="patch-item__header">
+                  <span class="patch-item__version">v0.4.0</span>
+                  <span class="patch-item__date">2026-01-21</span>
+                  <span class="patch-item__badge">CHAT</span>
+                </header>
+                <div class="patch-item__title">
+                  Chatroom stability + UX improvements
+                </div>
+                <ul class="tb-list tb-list--compact">
+                  <li>Improved chat reliability and handling of common edge cases.</li>
+                  <li>Refined client-side behavior for smoother conversations.</li>
+                </ul>
+              </article>
+
+              <article class="patch-item" data-tags="auth logout security">
+                <header class="patch-item__header">
+                  <span class="patch-item__version">v0.3.0</span>
+                  <span class="patch-item__date">2025-11-30</span>
+                  <span class="patch-item__badge">AUTH</span>
+                </header>
+                <div class="patch-item__title">
+                  Logout + auth guard foundations
+                </div>
+                <ul class="tb-list tb-list--compact">
+                  <li>Added logout flow.</li>
+                  <li>Added route/page access protection.</li>
+                </ul>
+              </article>
+
+              <article class="patch-item" data-tags="ui aesthetic matrix retro">
+                <header class="patch-item__header">
+                  <span class="patch-item__version">v0.2.0</span>
+                  <span class="patch-item__date">2025-11-xx</span>
+                  <span class="patch-item__badge">UI</span>
+                </header>
+                <div class="patch-item__title">Retro styling pass</div>
+                <ul class="tb-list tb-list--compact">
+                  <li>Terminal UI styling updates (panels, borders, spacing).</li>
+                  <li>Matrix canvas background integration.</li>
+                </ul>
+              </article>
+            </div>
+
+            <!-- Shown only when filter finds no matches -->
+            <div class="patch-empty" id="patchEmpty" hidden>
+              No patch notes match your filter.
+            </div>
+          </div>
+        </section>
       </section>
-    </section>
-  </main>
+    </main>
 
-  <footer class="tb-footer">
-    <span>TERMINALBOARD · BOARD & THREADS</span>
-  </footer>
+    <!-- =======================================================
+         FOOTER
+         ======================================================= -->
+    <footer class="tb-footer">
+      <span>TERMINALBOARD · ABOUT & PATCH NOTES</span>
+    </footer>
 
-  <script src="js/logout.js"></script>
-  <script src="js/auth-guard.js"></script>
-  <script src="js/boards.js"></script>
-  <script src="js/matrix.js"></script>
-</body>
+    <!-- =======================================================
+         SCRIPTS
+         - logout.js wires #navLogout
+         - auth-guard.js ensures protected access
+         - matrix.js draws the background
+         - boards.js is NOT loaded anymore (boards feature removed)
+         ======================================================= -->
+    <script src="js/logout.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/matrix.js"></script>
+
+    <!-- Optional: If you later add patch filtering JS, include it here -->
+  </body>
 </html>
