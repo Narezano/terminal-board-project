@@ -1,13 +1,30 @@
-/* Boards page – uses variables and fonts from styles.css */
+/* ============================================================
+   ABOUT & PATCH NOTES PAGE
+   ------------------------------------------------------------
+   Reuses global variables and fonts from styles.css.
+   This page replaces the old boards feature and is
+   informational only.
+   ============================================================ */
 
-.board-layout {
+/* ============================================================
+   PAGE LAYOUT
+   ------------------------------------------------------------
+   Two-panel layout: About (left) + Patch Notes (right)
+   Stacks vertically on smaller screens.
+   ============================================================ */
+.about-layout {
   width: 100%;
   max-width: 1100px;
   display: grid;
-  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 18px;
 }
 
+/* ============================================================
+   PANEL CONTAINER
+   ------------------------------------------------------------
+   Base panel styling used throughout the page.
+   ============================================================ */
 .panel {
   background: var(--bg-panel);
   border: 1px solid var(--border);
@@ -33,99 +50,205 @@
   color: var(--muted);
 }
 
-/* --- boards list --- */
-
-.board-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 11px;
+.panel__body {
   border-top: 1px solid rgba(0, 255, 0, 0.2);
+  padding-top: 10px;
+  font-size: 11px;
 }
 
-.board-item {
+/* ============================================================
+   TYPOGRAPHY HELPERS
+   ============================================================ */
+.tb-paragraph {
+  margin: 0 0 10px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.tb-paragraph--tight {
+  margin-bottom: 0;
+}
+
+/* Inline terminal-style label */
+.tb-kbd {
+  display: inline-block;
+  padding: 1px 4px;
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  background: rgba(0, 30, 0, 0.65);
+  color: var(--text-strong);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
+/* Horizontal divider */
+.tb-divider {
+  height: 1px;
+  background: rgba(0, 255, 0, 0.2);
+  margin: 10px 0;
+}
+
+/* ============================================================
+   ABOUT SECTION BLOCKS
+   ============================================================ */
+.tb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tb-block {
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  padding: 10px;
+  background: rgba(0, 20, 0, 0.5);
+}
+
+.tb-block__title {
+  font-family: "Press Start 2P", system-ui;
+  font-size: 10px;
+  color: var(--text-strong);
+  margin-bottom: 8px;
+}
+
+.tb-list {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.tb-list--compact li {
+  margin: 3px 0;
+}
+
+/* ============================================================
+   CALLOUT / NOTICE BOX
+   ============================================================ */
+.tb-callout {
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  background: rgba(0, 40, 0, 0.6);
+  padding: 10px;
+}
+
+.tb-callout__title {
+  font-family: "Press Start 2P", system-ui;
+  font-size: 10px;
+  color: var(--text-strong);
+  margin-bottom: 6px;
+}
+
+/* ============================================================
+   PATCH NOTES CONTROLS
+   ============================================================ */
+.patch-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Search/filter input */
+.patch-search {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 255, 0, 0.35);
+  background: rgba(0, 20, 0, 0.75);
+  color: var(--text);
+  font-size: 11px;
+  outline: none;
+}
+
+.patch-search::placeholder {
+  color: rgba(0, 255, 0, 0.45);
+}
+
+.patch-search:focus {
+  border-color: rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.08);
+}
+
+/* Helper hint text */
+.patch-hint {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   PATCH NOTES LIST
+   ============================================================ */
+.patch-list {
   display: flex;
   flex-direction: column;
-  padding: 8px 6px;
-  border-bottom: 1px solid rgba(0, 255, 0, 0.2);
-  cursor: pointer;
+  gap: 10px;
 }
 
-.board-item__row {
+.patch-item {
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  background: rgba(0, 15, 0, 0.55);
+  padding: 10px;
+}
+
+.patch-item__header {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
-.board-item__code {
+.patch-item__version {
   color: var(--text-strong);
+  font-family: "Press Start 2P", system-ui;
+  font-size: 10px;
 }
 
-.board-item__name {
-  color: var(--text);
-}
-
-.board-item__desc {
-  margin-top: 2px;
+.patch-item__date {
   font-size: 10px;
   color: var(--muted);
 }
 
-.board-item:hover {
-  background: rgba(0, 40, 0, 0.8);
-}
-
-.board-item--active {
-  background: rgba(0, 60, 0, 0.95);
-}
-
-/* --- threads list --- */
-
-.thread-list {
-  margin-top: 4px;
-  border-top: 1px solid rgba(0, 255, 0, 0.2);
-  font-size: 11px;
-}
-
-.thread-card {
-  padding: 8px 6px;
-  border-bottom: 1px solid rgba(0, 255, 0, 0.2);
-}
-
-.thread-card__header {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 4px;
-}
-
-.thread-card__title {
-  color: var(--text-strong);
-}
-
-.thread-card__meta {
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.thread-card__preview {
-  font-size: 11px;
-  color: var(--text);
-}
-
-.badge {
+.patch-item__badge {
+  margin-left: auto;
   display: inline-block;
   padding: 1px 4px;
   border: 1px solid var(--accent);
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  margin-left: auto;
 }
 
-/* RESPONSIVE: stack panels */
-@media (max-width: 800px) {
-  .board-layout {
+.patch-item__title {
+  color: var(--text-strong);
+  margin-bottom: 6px;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.patch-empty {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed rgba(0, 255, 0, 0.25);
+  color: var(--muted);
+}
+
+/* ============================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================ */
+@media (max-width: 900px) {
+  .about-layout {
     grid-template-columns: 1fr;
+  }
+
+  .tb-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .patch-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .patch-hint {
+    white-space: normal;
   }
 }
