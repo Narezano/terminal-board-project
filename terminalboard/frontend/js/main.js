@@ -1,24 +1,43 @@
 // frontend/js/main.js
+// Handles login + signup for TerminalBoard (index.html + signup page)
+// Stores auth session in localStorage:
+// - tb_token: JWT token
+// - tb_user:  user object (username/email/role)
 
-// Helper to get elements
 const $ = (sel) => document.querySelector(sel);
 
-// Decide which API to call: local dev or deployed backend
-const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://terminalboard-backend.onrender.com";
+/**
+ * Detect local dev environments.
+ * Note: Live Server often uses 127.0.0.1, so we treat both as "local".
+ */
+const IS_LOCAL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
-// Helper to show messages...
+/**
+ * Backend base URL:
+ * - Local: Node/Express on port 5000
+ * - Deployed: Render backend
+ */
+const API_BASE_URL = IS_LOCAL
+  ? "http://localhost:5000"
+  : "https://terminalboard-backend.onrender.com";
+
+/**
+ * Utility: Render a UI message (success/error/info)
+ * Assumes your CSS defines: .message.message--info, --success, --error
+ */
 function setMessage(el, text, type = "info") {
   if (!el) return;
   el.textContent = text;
   el.className = `message message--${type}`;
 }
 
-/* ========== LOGIN (REAL BACKEND) ========== */
+/* ===========================
+   LOGIN (REAL BACKEND)
+   =========================== */
 async function login(event) {
-  if (event) event.preventDefault();
+  event?.preventDefault();
 
   const usernameOrEmail = $("#loginUsername")?.value.trim();
   const password = $("#loginPassword")?.value.trim();
@@ -34,30 +53,24 @@ async function login(event) {
 
     const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ usernameOrEmail, password }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       setMessage(msg, data.message || "LOGIN FAILED", "error");
       return;
     }
 
-    // Store token + user for later (boards, chat, etc.)
-    if (data.token) {
-      localStorage.setItem("tb_token", data.token);
-    }
-    if (data.user) {
-      localStorage.setItem("tb_user", JSON.stringify(data.user));
-    }
+    // Persist session for pages like chat/admin
+    if (data.token) localStorage.setItem("tb_token", data.token);
+    if (data.user) localStorage.setItem("tb_user", JSON.stringify(data.user));
 
     setMessage(msg, "ACCESS GRANTED. REDIRECTING...", "success");
 
-    // Redirect to boards page from login (root index.html)
+    // index.html lives in project root, chat is under /frontend
     setTimeout(() => {
       window.location.href = "frontend/chat.html";
     }, 800);
@@ -67,14 +80,13 @@ async function login(event) {
   }
 }
 
-const loginForm = $("#loginForm");
-if (loginForm) {
-  loginForm.addEventListener("submit", login);
-}
+$("#loginForm")?.addEventListener("submit", login);
 
-/* ========== SIGNUP (REAL BACKEND) ========== */
+/* ===========================
+   SIGNUP (REAL BACKEND)
+   =========================== */
 async function signup(event) {
-  if (event) event.preventDefault();
+  event?.preventDefault();
 
   const username = $("#signupUsername")?.value.trim();
   const email = $("#signupEmail")?.value.trim();
@@ -108,13 +120,11 @@ async function signup(event) {
 
     const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       setMessage(msg, data.message || "SIGNUP FAILED", "error");
@@ -123,7 +133,7 @@ async function signup(event) {
 
     setMessage(msg, "SIGNUP SUCCESS. REDIRECTING TO SIGN IN...", "success");
 
-    // After signup, send them back to login page
+    // signup page is under /frontend, login is root index.html
     setTimeout(() => {
       window.location.href = "../index.html";
     }, 1200);
@@ -133,7 +143,4 @@ async function signup(event) {
   }
 }
 
-const signupForm = $("#signupForm");
-if (signupForm) {
-  signupForm.addEventListener("submit", signup);
-}
+$("#signupForm")?.addEventListener("submit", signup);
